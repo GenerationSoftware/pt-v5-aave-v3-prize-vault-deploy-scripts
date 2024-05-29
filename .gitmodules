@@ -20,3 +20,6 @@
 [submodule "lib/pt-v5-twab-delegator"]
 	path = lib/pt-v5-twab-delegator
 	url = https://github.com/GenerationSoftware/pt-v5-twab-delegator
+[submodule "lib/pt-v5-vault-boost"]
+	path = lib/pt-v5-vault-boost
+	url = https://github.com/GenerationSoftware/pt-v5-vault-boost

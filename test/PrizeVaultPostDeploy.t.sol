@@ -117,7 +117,7 @@ contract PrizeVaultPostDeployTest is Test {
         assertApproxEqAbs(aaveRewardLp.computeExactAmountIn(maxAmountOut), uint256(aaveRewardLp.lastAuctionPrice()), 1);
     }
 
-    function testOptimismUSDCRewards() public {
+    function testExistingRewards() public {
         // deposit and let rewards accrue
         address asset = addressBook.prizeVault.asset();
         uint256 depositAmount = 10000 * 10 ^ ERC20(asset).decimals();

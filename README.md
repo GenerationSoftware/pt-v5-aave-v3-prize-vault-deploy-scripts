@@ -85,7 +85,7 @@ This is the liquidation smoothing factor for the ***prize vault*** liquidations.
 
 ### `aaveRewardLiquidatorFactory`
 
-This is the `AaveV3ERC4626LiquidatorFactory` contract that will be used to deploy a new reward liquidator for the new Aave yield vault.
+This is the `RewardLiquidatorFactory` contract that will be used to deploy a new reward liquidator for the new Aave yield vault.
 
 --------------------------------------------------------------------------------
 
