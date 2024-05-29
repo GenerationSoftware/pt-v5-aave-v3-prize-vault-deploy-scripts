@@ -10,8 +10,9 @@ import { IPool, IRewardsController, AaveV3ERC4626, ERC20 } from "yield-daddy/aav
 import { PrizePool } from "pt-v5-prize-pool/PrizePool.sol";
 import { TpdaLiquidationPairFactory, TpdaLiquidationPair } from "pt-v5-tpda-liquidator/TpdaLiquidationPairFactory.sol";
 import { TpdaLiquidationRouter } from "pt-v5-tpda-liquidator/TpdaLiquidationRouter.sol";
-import { AaveV3ERC4626LiquidatorFactory, AaveV3ERC4626Liquidator, IPrizePool } from "pt-v5-yield-daddy-liquidators/AaveV3ERC4626LiquidatorFactory.sol";
+import { RewardLiquidatorFactory, RewardLiquidator, IPrizePool } from "pt-v5-yield-daddy-liquidators/RewardLiquidatorFactory.sol";
 import { PrizeVaultFactory, PrizeVault, IERC4626 } from "pt-v5-vault/PrizeVaultFactory.sol";
+import { VaultBoosterFactory, VaultBooster } from "pt-v5-vault-boost/VaultBoosterFactory.sol";
 
 struct Configuration {
     // LP Config
@@ -21,7 +22,7 @@ struct Configuration {
     uint256 prizeVaultLpSmoothingFactor;
 
     // Reward LP Config
-    AaveV3ERC4626LiquidatorFactory aaveRewardLiquidatorFactory;
+    RewardLiquidatorFactory aaveRewardLiquidatorFactory;
     uint64 aaveRewardLpTargetAuctionPeriod;
     uint192 aaveRewardLpTargetAuctionPrice;
     uint256 aaveRewardLpSmoothingFactor;
@@ -35,6 +36,7 @@ struct Configuration {
     // Prize Vault Config
     PrizePool prizePool;
     PrizeVaultFactory prizeVaultFactory;
+    VaultBoosterFactory vaultBoosterFactory;
     address claimer;
     string prizeVaultName;
     string prizeVaultSymbol;
@@ -59,7 +61,7 @@ contract ScriptBase is Script {
         config.prizeVaultLpSmoothingFactor            = vm.parseJsonUint(file, "$.prizeVaultLpSmoothingFactor");
 
         // Reward LP Config
-        config.aaveRewardLiquidatorFactory              = AaveV3ERC4626LiquidatorFactory(vm.parseJsonAddress(file, "$.aaveRewardLiquidatorFactory"));
+        config.aaveRewardLiquidatorFactory              = RewardLiquidatorFactory(vm.parseJsonAddress(file, "$.aaveRewardLiquidatorFactory"));
         config.aaveRewardLpTargetAuctionPeriod  = vm.parseJsonUint(file, "$.aaveRewardLpTargetAuctionPeriod").toUint64();
         config.aaveRewardLpTargetAuctionPrice   = vm.parseJsonUint(file, "$.aaveRewardLpTargetAuctionPrice").toUint192();
         config.aaveRewardLpSmoothingFactor      = vm.parseJsonUint(file, "$.aaveRewardLpSmoothingFactor");
@@ -73,6 +75,7 @@ contract ScriptBase is Script {
         // Prize Vault
         config.prizePool                    = PrizePool(vm.parseJsonAddress(file, "$.prizePool"));
         config.prizeVaultFactory            = PrizeVaultFactory(vm.parseJsonAddress(file, "$.prizeVaultFactory"));
+        config.vaultBoosterFactory          = VaultBoosterFactory(vm.parseJsonAddress(file, "$.vaultBoosterFactory"));
         config.claimer                      = vm.parseJsonAddress(file, "$.claimer");
         config.prizeVaultName               = vm.parseJsonString(file, "$.prizeVaultName");
         config.prizeVaultSymbol             = vm.parseJsonString(file, "$.prizeVaultSymbol");

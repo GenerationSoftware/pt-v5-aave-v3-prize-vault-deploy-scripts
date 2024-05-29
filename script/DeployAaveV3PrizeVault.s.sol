@@ -12,25 +12,28 @@ import {
     IPrizePool,
     PrizePool,
     AaveV3ERC4626,
-    AaveV3ERC4626Liquidator,
+    RewardLiquidator,
     TpdaLiquidationPair,
     TpdaLiquidationRouter,
     IERC4626,
-    IRewardsController
+    IRewardsController,
+    VaultBooster
 } from "./ScriptBase.sol";
 
 import { TwabDelegator, IERC20 } from "pt-v5-twab-delegator/TwabDelegator.sol";
+import { IRewardSource } from "pt-v5-yield-daddy-liquidators/external/interfaces/IRewardSource.sol";
 
 struct PrizeVaultAddressBook {
     PrizeVault prizeVault;
     AaveV3ERC4626 yieldVault;
-    AaveV3ERC4626Liquidator rewardLiquidator;
+    RewardLiquidator rewardLiquidator;
     ERC20 aToken;
     TpdaLiquidationRouter lpRouter;
 }
 
 string constant configPath = "config/deploy.json";
 string constant addressBookPath = "config/addressBook.txt";
+uint256 constant YIELD_BUFFER = 1e5;
 
 contract DeployPrizeVault is ScriptBase {
 
@@ -52,7 +55,7 @@ contract DeployPrizeVault is ScriptBase {
             uint256 snapshot = vm.snapshot();
             
             vm.startPrank(msg.sender);
-            config.aaveV3Asset.approve(address(config.prizeVaultFactory), config.prizeVaultFactory.YIELD_BUFFER());
+            config.aaveV3Asset.approve(address(config.prizeVaultFactory), YIELD_BUFFER);
             vm.mockCall(config.yieldVaultComputedAddress, abi.encodeWithSignature("asset()"), abi.encode(address(config.aaveV3Asset)));
             vm.mockCall(config.yieldVaultComputedAddress, abi.encodeWithSignature("decimals()"), abi.encode(18));
             prizeVaultComputedAddress = address(config.prizeVaultFactory.deployVault(
@@ -63,6 +66,7 @@ contract DeployPrizeVault is ScriptBase {
                 config.claimer,
                 config.prizeVaultYieldFeeRecipient,
                 config.prizeVaultYieldFeePercentage,
+                YIELD_BUFFER,
                 msg.sender
             ));
             vm.stopPrank();
@@ -79,7 +83,7 @@ contract DeployPrizeVault is ScriptBase {
         vm.startBroadcast();
 
         // Deploy reward liquidator
-        AaveV3ERC4626Liquidator rewardLiquidator = config.aaveRewardLiquidatorFactory.createLiquidator(
+        RewardLiquidator rewardLiquidator = config.aaveRewardLiquidatorFactory.createLiquidator(
             msg.sender,
             prizeVaultComputedAddress,
             IPrizePool(address(config.prizePool)),
@@ -102,7 +106,7 @@ contract DeployPrizeVault is ScriptBase {
         }
 
         // Deploy prize vault
-        config.aaveV3Asset.approve(address(config.prizeVaultFactory), config.prizeVaultFactory.YIELD_BUFFER());
+        config.aaveV3Asset.approve(address(config.prizeVaultFactory), YIELD_BUFFER);
         PrizeVault prizeVault = config.prizeVaultFactory.deployVault(
             config.prizeVaultName,
             config.prizeVaultSymbol,
@@ -111,6 +115,7 @@ contract DeployPrizeVault is ScriptBase {
             config.claimer,
             config.prizeVaultYieldFeeRecipient,
             config.prizeVaultYieldFeePercentage,
+            YIELD_BUFFER,
             msg.sender
         );
         if (address(prizeVault) != prizeVaultComputedAddress) {
@@ -118,7 +123,7 @@ contract DeployPrizeVault is ScriptBase {
         }
 
         // Initialize reward liquidator
-        rewardLiquidator.setYieldVault(yieldVault);
+        rewardLiquidator.setYieldVault(IRewardSource(address(yieldVault)));
 
         // Deploy prize vault LP
         TpdaLiquidationPair lp = config.lpFactory.createPair(
@@ -144,6 +149,10 @@ contract DeployPrizeVault is ScriptBase {
             prizeVault.twabController(),
             IERC20(address(prizeVault))
         );
+
+        // Deploy new vault booster for the prize vault
+        VaultBooster vaultBooster = config.vaultBoosterFactory.createVaultBooster(prizeVault.prizePool(), address(prizeVault), config.prizeVaultOwner);
+        console2.log("Deployed vault booster: ", address(vaultBooster));
 
         vm.stopBroadcast();
 
@@ -173,9 +182,9 @@ contract DeployPrizeVault is ScriptBase {
         }
 
         // Check asset balance is enough for yield buffer
-        if (config.aaveV3Asset.balanceOf(msg.sender) < config.prizeVaultFactory.YIELD_BUFFER()) {
+        if (config.aaveV3Asset.balanceOf(msg.sender) < YIELD_BUFFER) {
             console2.log("The deployer address must have a small amount of the deposit asset to donate to the prize vault.");
-            console2.log("Amount needed: ", config.prizeVaultFactory.YIELD_BUFFER());
+            console2.log("Amount needed: ", YIELD_BUFFER);
             revert("Missing yield buffer asset balance...");
         }
     }
