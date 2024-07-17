@@ -1,0 +1,20 @@
+{
+    "lpFactory": "0x8557a9a33B573dC4403708c5A8746a52648374EA",
+    "prizeVaultLpTargetAuctionPeriod": "21600",
+    "prizeVaultLpTargetAuctionPrice": "100000000000000",
+    "prizeVaultLpSmoothingFactor": "500000000000000000",
+
+    "aaveRewardLiquidatorFactory": "0x778f1071EAb44027f0A76a3d5b73C29EF406A9bf",
+    "aaveRewardLpTargetAuctionPeriod": "43200",
+    "aaveRewardLpTargetAuctionPrice": "100000000000000",
+    "aaveRewardLpSmoothingFactor": "500000000000000000",
+
+    "aaveV3Pool": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5",
+    "aaveV3RewardsController": "0xf9cc4F0D883F1a1eb2c253bdb46c254Ca51E1F44",
+
+    "prizePool": "0x45b2010d8A4f08b53c9fa7544C51dFd9733732cb",
+    "prizeVaultFactory": "0xa55a74A457D8a24D68DdA0b5d1E0341746d444Bf",
+    "vaultBoosterFactory": "0x02D37f2654B4161801c8d7369b43A8762a31530e",
+    "claimer": "0xcdCE635b774DE77cdF791647601dba64a75547ba",
+    "lpRouter": "0xa9C937A0D1D22ad79099aeA10efA62A270DFc22c"
+}

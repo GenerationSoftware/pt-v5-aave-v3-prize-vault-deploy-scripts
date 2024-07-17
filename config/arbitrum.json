@@ -13,8 +13,8 @@
     "aaveV3RewardsController": "0x929EC64c34a17401F460460D4B9390518E5B473e",
 
     "prizePool": "0x52e7910c4c287848c8828e8b17b8371f4ebc5d42",
-    "prizeVaultFactory": "0x44be003e55e7ce8a2e0ecc3266f8a9a9de2c07bc",
+    "prizeVaultFactory": "0x8020Fb37b21E0eF1707aDa7A914baf44F9045E52",
     "vaultBoosterFactory": "0x574257f5601115b9bec90a64a056107b030b449e",
-    "claimer": "0x1e68e5e92d22aefdc791a61c874c06831023e571",
+    "claimer": "0xBEA38368f2A657f00f173764f18F00e841317c73",
     "lpRouter": "0x7b4a60964994422bf19ae48a90fbff806767db73"
 }
