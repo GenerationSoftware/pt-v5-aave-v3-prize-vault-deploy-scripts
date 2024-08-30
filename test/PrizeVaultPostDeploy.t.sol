@@ -15,6 +15,7 @@ contract PrizeVaultPostDeployTest is Test {
 
     uint256 deployFork;
     PrizeVaultAddressBook addressBook;
+    address alice;
 
     constructor() {
         deployFork = vm.createFork(vm.envString("SCRIPT_RPC_URL"));
@@ -30,6 +31,7 @@ contract PrizeVaultPostDeployTest is Test {
     
     function setUp() public {
         vm.selectFork(deployFork);
+        alice = makeAddr("Alice");
     }
 
     function testAddressBook() public view {
@@ -53,14 +55,16 @@ contract PrizeVaultPostDeployTest is Test {
 
         // The aToken address should hold lots of the asset, so we can spoof that address as our "dealer"
         vm.startPrank(address(addressBook.aToken));
-        asset.transfer(address(this), amount);
+        asset.transfer(alice, amount);
         vm.stopPrank();
 
-        assertEq(asset.balanceOf(address(this)), amount);
+        assertEq(asset.balanceOf(alice), amount);
 
         // Test deposit and withdraw
+        vm.startPrank(alice);
         asset.approve(address(addressBook.prizeVault), amount);
-        uint256 shares = addressBook.prizeVault.deposit(amount, address(this));
+        uint256 shares = addressBook.prizeVault.deposit(amount, alice);
+        vm.stopPrank();
         assertEq(shares, amount); // 1:1
 
         // Let yield accrue over time
@@ -71,8 +75,10 @@ contract PrizeVaultPostDeployTest is Test {
         assertGt(totalAssetsAfter, totalAssetsBefore);
 
         // Withdraw full amount
-        assertEq(addressBook.prizeVault.balanceOf(address(this)), amount);
-        uint256 assets = addressBook.prizeVault.redeem(amount, address(this), address(this));
+        assertEq(addressBook.prizeVault.balanceOf(alice), amount);
+        vm.startPrank(alice);
+        uint256 assets = addressBook.prizeVault.redeem(amount, alice, alice);
+        vm.stopPrank();
         assertEq(assets, amount);
 
         // Test that yield still exists in prize vault
@@ -121,9 +127,11 @@ contract PrizeVaultPostDeployTest is Test {
         // deposit and let rewards accrue
         address asset = addressBook.prizeVault.asset();
         uint256 depositAmount = 10000 * 10 ^ ERC20(asset).decimals();
-        deal(asset, address(this), depositAmount);
+        deal(asset, alice, depositAmount);
+        vm.startPrank(alice);
         ERC20(asset).approve(address(addressBook.prizeVault), depositAmount);
-        addressBook.prizeVault.deposit(depositAmount, address(this));
+        addressBook.prizeVault.deposit(depositAmount, alice);
+        vm.stopPrank();
 
         vm.warp(block.timestamp + 7 days);
 
@@ -148,17 +156,17 @@ contract PrizeVaultPostDeployTest is Test {
                 // liquidate
                 PrizePool prizePool = addressBook.prizeVault.prizePool();
                 ERC20 prizeToken = ERC20(address(prizePool.prizeToken()));
-                deal(address(prizeToken), address(this), exactAmountIn);
+                deal(address(prizeToken), alice, exactAmountIn);
                 prizeToken.approve(address(addressBook.lpRouter), exactAmountIn);
                 uint256 amountIn = addressBook.lpRouter.swapExactAmountOut(
                     aaveRewardLp,
-                    address(this),
+                    alice,
                     maxAmountOut,
                     exactAmountIn,
                     block.timestamp
                 );
                 assertEq(amountIn, exactAmountIn);
-                assertEq(ERC20(rewardTokens[i]).balanceOf(address(this)), maxAmountOut);
+                assertEq(ERC20(rewardTokens[i]).balanceOf(alice), maxAmountOut);
                 uint24 openDrawId = prizePool.getOpenDrawId();
                 assertEq(prizePool.getContributedBetween(address(addressBook.prizeVault), openDrawId, openDrawId), exactAmountIn);
             }

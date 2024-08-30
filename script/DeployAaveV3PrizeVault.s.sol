@@ -142,17 +142,17 @@ contract DeployPrizeVault is ScriptBase {
             console2.log("!!! Prize vault ownership offered! Accept ownership with the prize vault owner address to complete the transfer. !!!");
         }
 
-        // Deploy Twab Delegator for the prize vault
-        new TwabDelegator(
-            string.concat("Staked ", prizeVault.name()),
-            string.concat("st", prizeVault.symbol()),
-            prizeVault.twabController(),
-            IERC20(address(prizeVault))
-        );
+        // // Deploy Twab Delegator for the prize vault
+        // new TwabDelegator(
+        //     string.concat("Staked ", prizeVault.name()),
+        //     string.concat("st", prizeVault.symbol()),
+        //     prizeVault.twabController(),
+        //     IERC20(address(prizeVault))
+        // );
 
-        // Deploy new vault booster for the prize vault
-        VaultBooster vaultBooster = config.vaultBoosterFactory.createVaultBooster(prizeVault.prizePool(), address(prizeVault), config.prizeVaultOwner);
-        console2.log("Deployed vault booster: ", address(vaultBooster));
+        // // Deploy new vault booster for the prize vault
+        // VaultBooster vaultBooster = config.vaultBoosterFactory.createVaultBooster(prizeVault.prizePool(), address(prizeVault), config.prizeVaultOwner);
+        // console2.log("Deployed vault booster: ", address(vaultBooster));
 
         vm.stopBroadcast();
 
