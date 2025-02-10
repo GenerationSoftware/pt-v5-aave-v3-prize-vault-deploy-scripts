@@ -4,7 +4,7 @@
     "prizeVaultLpTargetAuctionPrice": "100000000000000",
     "prizeVaultLpSmoothingFactor": "500000000000000000",
 
-    "aaveRewardLiquidatorFactory": "",
+    "aaveRewardLiquidatorFactory": "0xD09ca1A19e7c73e229d87dc83883719184426AFb",
     "aaveRewardLpTargetAuctionPeriod": "86400",
     "aaveRewardLpTargetAuctionPrice": "100000000000000",
     "aaveRewardLpSmoothingFactor": "500000000000000000",
